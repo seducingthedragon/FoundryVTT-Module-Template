@@ -15,7 +15,9 @@ export async function setSetting(key, value) {
 }
 
 function registerSettingsArray(settings) {
-    for(const [key, value] of Object.entries(settings)) {
+    for (const [key, value] of Object.entries(settings)) {
+        if (!value.name) value.name = `${MODULE_ID}.settings.${key}.name`
+        if (!value.hint) value.hint = `${MODULE_ID}.settings.${key}.hint`
         game.settings.register(MODULE_ID, key, value);
     }
 }

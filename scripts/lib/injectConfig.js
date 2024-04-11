@@ -231,7 +231,7 @@ const _template = `
         {{/if}}
 
         {{#if (eq input.type 'textarea')}}
-            <textarea type="text" name="{{input.name}}" placeholder="{{input.placeholder}}"">{{input.value}}</textarea>
+            <textarea type="text" name="{{input.name}}" placeholder="{{input.placeholder}}">{{input.value}}</textarea>
         {{/if}}
 
         {{#if (eq input.type 'number')}}
