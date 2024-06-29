@@ -115,7 +115,7 @@ export class Socket {
         } else if (users === this.USERS.OTHERS) {
             options.users = active.filter((u) => u.id !== game.user.id).map((u) => u.id);
         } else if (users === this.USERS.FIRSTGM) {
-            options.users = game.users.activeGM.id;
+            options.users = [game.users.activeGM.id];
         } else if (users === this.USERS.SELF) {
             options.users = [game.user.id];
         }
