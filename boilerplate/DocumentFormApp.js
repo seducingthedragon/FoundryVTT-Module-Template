@@ -1,42 +1,88 @@
 import { MODULE_ID } from "../main.js";
+import { HandlebarsApplication } from "../lib/utils.js";
 
-export class DocumentFormApp extends FormApplication {
+export class DocumentFormApp extends HandlebarsApplication {
     constructor(document) {
         super();
         this.document = document;
     }
 
+    static DEFAULT_OPTIONS = {
+        classes: [this.APP_ID],
+        tag: "form",
+        window: {
+            frame: true,
+            positioned: true,
+            title: `${MODULE_ID}.${this.APP_ID}.title`,
+            icon: "",
+            controls: [],
+            minimizable: true,
+            resizable: false,
+            contentTag: "section",
+            contentClasses: [],
+        },
+        actions: {},
+        form: {
+            handler: this.#onSubmit,
+            submitOnChange: false,
+            closeOnSubmit: true,
+        },
+        position: {
+            width: 560,
+            height: "auto",
+        },
+        actions: {},
+    };
+
+    static PARTS = {
+        tabs: {
+            template: "templates/generic/tab-navigation.hbs",
+        },
+        content: {
+            template: `modules/${MODULE_ID}/templates/${this.APP_ID}.hbs`,
+        },
+    
+        footer: {
+            template: "templates/generic/form-footer.hbs",
+        },
+    };
+
     static get APP_ID() {
-        return this.name.split(/(?=[A-Z])/).join('-').toLowerCase();
+        return this.name
+            .split(/(?=[A-Z])/)
+            .join("-")
+            .toLowerCase();
     }
 
     get APP_ID() {
         return this.constructor.APP_ID;
     }
 
-    static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
-            id: this.APP_ID,
-            template: `modules/${MODULE_ID}/templates/${this.APP_ID}.hbs`,
-            popOut: true,
-            minimizable: true,
-            title: game.i18n.localize(`${MODULE_ID}.${this.APP_ID}.title`),
-            closeOnSubmit: true,
-        });
+    async _prepareContext(options) {
+        return {
+            ...this.document,
+            buttons: [
+                {
+                    type: "submit",
+                    action: "submit",
+                    icon: "far fa-save",
+                    label: "Save",
+                }
+            ]
+        };
     }
 
-    async getData() {
-        const data = {};
-        return { data };
+    _onRender(context, options) {
+        super._onRender(context, options);
+        const html = this.element;
     }
 
-    activateListeners(html) {
-        super.activateListeners(html);
-        html = html[0] ?? html;
+    static async #onSubmit(event, form, formData) {
+        const data = foundry.utils.expandObject(formData.object);
+        return await this.document.update(data);
     }
 
-    async _updateObject(event, formData) {
-        formData = foundry.utils.expandObject(formData);
-        return this.document.update(formData);
+    _onClose(options) {
+        super._onClose(options);
     }
 }

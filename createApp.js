@@ -1,12 +1,11 @@
 const readline = require("readline-sync");
 const fs = require("fs-extra");
 
-const types = ["FormApplication", "Application", "Menu"];
+const types = ["FormApplication", "Application"];
 
 const boilerplates = {
     FormApplication: "DocumentFormApp",
     Application: "BasicApplication",
-    Menu: "MenuSetting",
 };
 
 function createApplication(type, name) {
@@ -43,7 +42,7 @@ const args = process.argv.slice(2);
 
 // If no arguments are provided, ask for type and name
 if (args.length === 0) {
-    const type = readline.question("Enter the type of application (1 for FormApplication, 2 for Application, 3 for Menu): ");
+    const type = readline.question("Enter the type of application (1 for FormApplication, 2 for Application): ");
     const name = readline.question("Enter the application name: ");
 
     createApplication(type, name);
