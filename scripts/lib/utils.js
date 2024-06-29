@@ -1,5 +1,34 @@
 export class HandlebarsApplication extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) { }
 
+
+export function deepClone(obj) {
+    return foundry.utils.deepClone(obj);
+}
+
+export function expandObject(obj) {
+    return foundry.utils.expandObject(obj);
+}
+
+export function flattenObject(obj) {
+    return foundry.utils.flattenObject(obj);
+}
+
+export function randomID(length = 20) {
+    return foundry.utils.randomID(length);
+}
+
+export function setProperty(obj, key, value) {
+    return foundry.utils.setProperty(obj, key, value);
+}
+
+export function getProperty(obj, key) {
+    return foundry.utils.getProperty(obj, key);
+}
+
+export function l(x) {
+    return game.i18n.localize(x);
+}
+
 export function easeInSine(x) {
     return 1 - Math.cos((x * Math.PI) / 2);
 }
