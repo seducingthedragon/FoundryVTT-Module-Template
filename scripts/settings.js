@@ -1,6 +1,7 @@
 import {MODULE_ID} from "./main.js";
 
 SETTING_CACHE = {};
+DEFAULT_CACHE = false;
 
 export function registerSettings() {
     const settings = {};
@@ -20,6 +21,7 @@ function registerSettingsArray(settings) {
     for (const [key, value] of Object.entries(settings)) {
         if (!value.name) value.name = `${MODULE_ID}.settings.${key}.name`
         if (!value.hint) value.hint = `${MODULE_ID}.settings.${key}.hint`
+        if (value.useCache === undefined) value.useCache = DEFAULT_CACHE;
         if (value.useCache) {
             const unwrappedOnChange = value.onChange;
             if (value.onChange) value.onChange = (value) => {
