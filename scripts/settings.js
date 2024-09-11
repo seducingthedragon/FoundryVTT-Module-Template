@@ -1,7 +1,7 @@
 import {MODULE_ID} from "./main.js";
 
-SETTING_CACHE = {};
-DEFAULT_CACHE = false;
+const SETTING_CACHE = {};
+const DEFAULT_CACHE = false;
 
 export function registerSettings() {
     const settings = {};
