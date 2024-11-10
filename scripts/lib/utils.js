@@ -1,4 +1,41 @@
-export class HandlebarsApplication extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) { }
+export class HandlebarsApplication extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+    static get APP_ID() {
+        return this.name
+            .split(/(?=[A-Z])/)
+            .join("-")
+            .toLowerCase();
+    }
+
+    get APP_ID() {
+        return this.constructor.APP_ID;
+    }
+
+    static get DEFAULT_OPTIONS() {  
+        return {
+            tag: "div",
+            window: {
+                frame: true,
+                positioned: true,
+                icon: "",
+                controls: [],
+                minimizable: true,
+                resizable: false,
+                contentTag: "section",
+                contentClasses: [],
+            },
+            actions: {},
+            form: {
+                handler: undefined,
+                submitOnChange: false,
+                closeOnSubmit: false,
+            },
+            position: {
+                width: 560,
+                height: "auto",
+            },
+        };
+    }
+}
 
 
 export function deepClone(obj) {
@@ -11,6 +48,16 @@ export function expandObject(obj) {
 
 export function flattenObject(obj) {
     return foundry.utils.flattenObject(obj);
+}
+
+export function mergeObject(obj, other) {
+    return foundry.utils.mergeObject(obj, other);
+}
+
+export function mergeClone(obj, other) {
+    obj = foundry.utils.deepClone(obj);
+    other = foundry.utils.deepClone(other);
+    return foundry.utils.mergeObject(obj, other);
 }
 
 export function randomID(length = 20) {

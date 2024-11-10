@@ -1,4 +1,4 @@
-import {MODULE_ID} from "../main.js";
+import { MODULE_ID } from "../main.js";
 
 const PARTIAL_KEY = "6uy8g1tXqHlhlp65dhiL-genericFormHelper-" + MODULE_ID;
 
@@ -35,7 +35,7 @@ export class FormBuilder {
 
     form() {
         if (this.#app) return this.#app;
-        const app = new FormHelper({tabs: this.#tabs, fields: this.#fields, buttons: this.#buttons, options: this.#options});
+        const app = new FormHelper({ tabs: this.#tabs, fields: this.#fields, buttons: this.#buttons, options: this.#options });
         this.#app = app;
         return app;
     }
@@ -48,18 +48,21 @@ export class FormBuilder {
     }
 
     getAsClass(options) {
-
-        const classData = {...options, tabs: this.#tabs, fields: this.#fields, buttons: this.#buttons, options: this.#options};
+        const classData = { ...options, tabs: this.#tabs, fields: this.#fields, buttons: this.#buttons, options: this.#options };
 
         return class extends FormHelper {
             constructor(data = {}) {
-                super({...classData, ...data});
+                super({ ...classData, ...data });
             }
-        }
+        };
     }
 
-    registerAsMenu({moduleId, key, name, label, icon, hint, scope, restricted, defaultValue, onChange, requiresReload} = {}) {
-        
+    onRender(callback) {
+        this.#options.onRender = callback;
+        return this;
+    }
+
+    registerAsMenu({ moduleId, key, name, label, icon, hint, scope, restricted, defaultValue, onChange, requiresReload } = {}) {
         moduleId ??= MODULE_ID;
         scope ??= "world";
         restricted ??= true;
@@ -75,13 +78,13 @@ export class FormBuilder {
                 requiresReload,
                 onChange,
                 moduleId,
-                key
-            }
-        }
+                key,
+            },
+        };
 
         const cls = this.getAsClass(menuOptions);
 
-        game.settings.registerMenu(moduleId, key+"-menu", {
+        game.settings.registerMenu(moduleId, key + "-menu", {
             name,
             label,
             hint,
@@ -103,7 +106,7 @@ export class FormBuilder {
         return {
             getSetting: () => game.settings.get(moduleId, key),
             setSetting: (value) => game.settings.set(moduleId, key, value),
-        }
+        };
     }
 
     async insertHTML(element, selector, insertion = "afterend") {
@@ -206,7 +209,7 @@ export class FormBuilder {
         return this;
     }
 
-    html(html){
+    html(html) {
         const field = {
             html,
         };
@@ -285,11 +288,11 @@ export class FormBuilder {
     select({ name, label, hint, value, options }) {
         const dType = inferSelectDataType(options);
         const field = {
-            field: dType === Number ? new foundry.data.fields.NumberField({ choices: options }) : new foundry.data.fields.StringField({ choices: options }),
+            field: dType === Number ? new foundry.data.fields.NumberField({ choices: options, required: true }) : new foundry.data.fields.StringField({ choices: options, required: true, blank: false }),
             name,
             label,
             hint,
-            value,
+            value: value ?? options[0]?.key,
             options,
         };
         this.#addField(field);
@@ -298,7 +301,7 @@ export class FormBuilder {
 
     multiSelect({ name, label, hint, value, options }) {
         const dType = inferSelectDataType(options);
-        const dataField = dType === Number ? new foundry.data.fields.NumberField({ choices: options }) : new foundry.data.fields.StringField({ choices: options });
+        const dataField = dType === Number ? new foundry.data.fields.NumberField({ choices: options, nullable: false }) : new foundry.data.fields.StringField({ choices: options, nullable: false });
         const field = {
             field: new foundry.data.fields.SetField(dataField),
             name,
@@ -336,6 +339,45 @@ export class FormBuilder {
         return this;
     }
 
+    script({ name, label, hint, value }) {
+        const field = {
+            field: new foundry.data.fields.JavaScriptField(),
+            name,
+            label,
+            hint,
+            value,
+        };
+        this.#addField(field);
+        return this;
+    }
+
+    uuid({name, label, hint, value, type, multiple}) {
+        const dataField = {
+            field: new foundry.data.fields.DocumentUUIDField({},{type}),
+            name,
+            label,
+            hint,
+            value,
+            type,
+            multiple,
+        };
+        let field;
+        if (multiple) {
+            field = {
+                field: new foundry.data.fields.SetField(dataField.field),
+                name,
+                label,
+                hint,
+                value,
+                multiple,
+            };
+        } else {
+            field = dataField;
+        }
+        this.#addField(field);
+        return this;
+    }
+
     button({ label, action, icon, callback }) {
         action ??= foundry.utils.randomID();
         const button = {
@@ -360,7 +402,7 @@ const FILE_PICKER_TYPES = {
 };
 
 function inferSelectDataType(options) {
-    const values = Object.keys(options);
+    const values = Array.isArray(options) ? options.map((o) => o.key) : Object.keys(options);
     try {
         const isNumber = values.every((v) => {
             const n = JSON.parse(v);
@@ -374,10 +416,10 @@ function inferSelectDataType(options) {
 }
 
 export class FormHelper extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
-    constructor (data) {
+    constructor(data) {
         const actions = {};
         data.buttons.forEach((b) => (actions[b.action] = b.callback));
-        super({actions, ...data.options});
+        super({ actions, ...data.options });
         FormHelper.registerPartial();
         this.menu = data.settingsMenu;
         this.resolve;
@@ -386,6 +428,7 @@ export class FormHelper extends foundry.applications.api.HandlebarsApplicationMi
             this.resolve = resolve;
             this.reject = reject;
         });
+        this.onRenderFunction = data.options.onRender;
         this.#info = data.options.info;
         this.processFormStructure(data);
     }
@@ -419,7 +462,7 @@ export class FormHelper extends foundry.applications.api.HandlebarsApplicationMi
         },
         genericForm: {
             template: PARTIAL_KEY,
-            classes: ["standard-form"],
+            classes: ["standard-form", "scrollable"],
         },
         footer: {
             template: "templates/generic/form-footer.hbs",
@@ -427,16 +470,14 @@ export class FormHelper extends foundry.applications.api.HandlebarsApplicationMi
     };
 
     static registerPartial() {
-        if(Handlebars.partials[PARTIAL_KEY]) return;
+        if (Handlebars.partials[PARTIAL_KEY]) return;
         const compiledTemplate = Handlebars.compile(GENERIC_FORM_HBS);
         Handlebars.registerPartial(PARTIAL_KEY, compiledTemplate);
     }
 
     processFormStructure(data) {
-
         const currentSetting = this.menu ? game.settings.get(this.menu.moduleId, this.menu.key) : {};
         const isMenu = !!this.menu;
-
 
         if (data.tabs?.length) {
             this.__tabs = {};
@@ -472,7 +513,6 @@ export class FormHelper extends foundry.applications.api.HandlebarsApplicationMi
 
         this.#fields = data.fields ?? [];
 
-
         this.#buttons = data.buttons ?? [];
     }
 
@@ -495,6 +535,7 @@ export class FormHelper extends foundry.applications.api.HandlebarsApplicationMi
         if (!this.__tabs) {
             this.element.querySelector("nav").classList.add("hidden");
         }
+        if(this.onRenderFunction) this.onRenderFunction.bind(this)(context, options);
     }
 
     #getTabs() {
@@ -543,10 +584,10 @@ const FIELD_INNER_HBS = `
     </fieldset>
     {{else}}
     {{#if field.html}}{{{field.html}}}{{else}}
-    {{formField field.field stacked=field.stacked type=field.type label=field.label hint=field.hint name=field.name value=field.value min=field.min max=field.max step=field.step localize=true}}
+    {{formField field.field stacked=field.stacked multiple=field.multiple type=field.type label=field.label hint=field.hint name=field.name value=field.value min=field.min max=field.max step=field.step localize=true}}
     {{/if}}
     {{/if}}
-        `
+        `;
 
 const GENERIC_FORM_HBS = `<div>
     {{#if info}}{{{info}}}{{/if}}
@@ -563,4 +604,4 @@ const GENERIC_FORM_HBS = `<div>
     {{#each fields as |field|}}
     ${FIELD_INNER_HBS}
     {{/each}}
-</div>`
+</div>`;    

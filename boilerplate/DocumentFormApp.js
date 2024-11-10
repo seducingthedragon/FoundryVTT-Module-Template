@@ -7,45 +7,44 @@ export class DocumentFormApp extends HandlebarsApplication {
         this.document = document;
     }
 
-    static DEFAULT_OPTIONS = {
-        classes: [this.APP_ID],
-        tag: "form",
-        window: {
-            frame: true,
-            positioned: true,
-            title: `${MODULE_ID}.${this.APP_ID}.title`,
-            icon: "",
-            controls: [],
-            minimizable: true,
-            resizable: false,
-            contentTag: "section",
-            contentClasses: [],
-        },
-        actions: {},
-        form: {
-            handler: this.#onSubmit,
-            submitOnChange: false,
-            closeOnSubmit: true,
-        },
-        position: {
-            width: 560,
-            height: "auto",
-        },
-        actions: {},
-    };
+    static get DEFAULT_OPTIONS() {
+        return mergeClone(super.DEFAULT_OPTIONS, {
+            classes: [this.APP_ID],
+            tag: "form",
+            window: {
+                title: `${MODULE_ID}.${this.APP_ID}.title`,
+                icon: "",
+                resizable: false,
+                contentTag: "section",
+            },
+            form: {
+                handler: this.#onSubmit,
+                submitOnChange: false,
+                closeOnSubmit: true,
+            },
+            position: {
+                width: 560,
+                height: "auto",
+            },
+        });
+    }
 
-    static PARTS = {
-        tabs: {
-            template: "templates/generic/tab-navigation.hbs",
-        },
-        content: {
-            template: `modules/${MODULE_ID}/templates/${this.APP_ID}.hbs`,
-        },
-    
-        footer: {
-            template: "templates/generic/form-footer.hbs",
-        },
-    };
+    static get PARTS() {
+        return {
+            tabs: {
+                template: "templates/generic/tab-navigation.hbs",
+            },
+            content: {
+                template: `modules/${MODULE_ID}/templates/${this.APP_ID}.hbs`,
+                classes: ["scrollable"],
+                scrollable: [""],
+            },
+
+            footer: {
+                template: "templates/generic/form-footer.hbs",
+            },
+        };
+    }
 
     static get APP_ID() {
         return this.name
@@ -67,8 +66,8 @@ export class DocumentFormApp extends HandlebarsApplication {
                     action: "submit",
                     icon: "far fa-save",
                     label: "Save",
-                }
-            ]
+                },
+            ],
         };
     }
 

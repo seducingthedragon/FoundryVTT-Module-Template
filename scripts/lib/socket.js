@@ -135,7 +135,7 @@ export class Socket {
         this.__$callbacks[eventName] = callback;
 
         const wrappedCallback = async (data = {}, options = {}) => {
-            options = { ...defaultOptions, ...options };
+            options = { ...defaultOptions, ...options };    
             options = this.__$parseUsers(options);
             const eventId = foundry.utils.randomID();
             options.__$eventId = eventId;

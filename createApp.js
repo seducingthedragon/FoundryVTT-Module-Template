@@ -28,7 +28,7 @@ function createApplication(type, name) {
     // Read the copied file and replace occurrences of "DocumentFormApp" with the application name
     const filePath = `${appFolderPath}/${name}.js`;
     let fileContent = fs.readFileSync(filePath, "utf-8");
-    fileContent = fileContent.replace(boilerplates[type], name);
+    fileContent = fileContent.replace(boilerplates[selectedType], name);
     fs.writeFileSync(filePath, fileContent);
 
     // Create an empty .hbs file in the templates folder
