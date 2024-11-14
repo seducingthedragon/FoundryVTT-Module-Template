@@ -37,6 +37,17 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
     }
 }
 
+export function confirm(title, content, options = {}) {
+    title = l(title);
+    content = l(content);
+    return foundry.applications.api.DialogV2.confirm({window: {title}, content});
+}
+
+export function prompt(title, content, options = {}) {
+    title = l(title);
+    content = l(content);
+    return foundry.applications.api.DialogV2.prompt({window: {title}, content, ...options});
+}
 
 export function deepClone(obj) {
     return foundry.utils.deepClone(obj);
