@@ -4,7 +4,7 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
     
     constructor() {
         super();
-        this.registerPositionSetting();
+        this.constructor.registerPositionSetting();
         this.savePosition = foundry.utils.debounce(this.savePosition.bind(this), 100);
     }
 
@@ -65,10 +65,11 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
         };
     }
 
-    async #render(...args) {
-        const [options] = args;
-        if(!options.position && this.constructor.POSITION_SETTING_REGISTERED) options.position = game.settings.get(MODULE_ID, this.APP_ID + "-position");
-        return super.#render(...args);
+    
+    async render(options1 = {}, options2 = {}) {
+        const activeOptions = typeof options1 === "boolean" ? options2 : options1;
+        if(!activeOptions.position && this.constructor.POSITION_SETTING_REGISTERED) activeOptions.position = game.settings.get(MODULE_ID, this.APP_ID + "-position");
+        return super.render(options1, options2);
     }
 }
 
