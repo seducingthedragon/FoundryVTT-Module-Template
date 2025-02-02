@@ -1,4 +1,32 @@
+import { MODULE_ID } from "../main.js";
+
 export class HandlebarsApplication extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+    
+    constructor() {
+        super();
+        this.registerPositionSetting();
+        this.savePosition = foundry.utils.debounce(this.savePosition.bind(this), 100);
+    }
+
+    static registerPositionSetting() {
+        if (this.POSITION_SETTING_REGISTERED || !this.DEFAULT_OPTIONS.window?.savePosition) return;
+        this.POSITION_SETTING_REGISTERED = true;
+        game.settings.register(MODULE_ID, this.APP_ID + "-position", {
+            scope: "client",
+            config: false,
+            type: Object,
+            default: {}
+        });
+    }
+
+    static resetSavedPosition() {
+        game.settings.set(MODULE_ID, this.APP_ID + "-position", {});
+    }
+
+    savePosition(position) {
+        game.settings.set(MODULE_ID, this.APP_ID + "-position", position);
+    }
+    
     static get APP_ID() {
         return this.name
             .split(/(?=[A-Z])/)
@@ -22,6 +50,7 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
                 resizable: false,
                 contentTag: "section",
                 contentClasses: [],
+                savePosition: false,
             },
             actions: {},
             form: {
@@ -34,6 +63,12 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
                 height: "auto",
             },
         };
+    }
+
+    async #render(...args) {
+        const [options] = args;
+        if(!options.position && this.constructor.POSITION_SETTING_REGISTERED) options.position = game.settings.get(MODULE_ID, this.APP_ID + "-position");
+        return super.#render(...args);
     }
 }
 
