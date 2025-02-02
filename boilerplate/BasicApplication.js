@@ -13,6 +13,7 @@ export class BasicApplication extends HandlebarsApplication {
                 title: `${MODULE_ID}.${this.APP_ID}.title`,
                 icon: "",
                 resizable: false,
+                savePosition: true,
             },
             position: {
                 width: 560,

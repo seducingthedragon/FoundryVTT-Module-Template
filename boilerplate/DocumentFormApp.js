@@ -16,6 +16,7 @@ export class DocumentFormApp extends HandlebarsApplication {
                 icon: "",
                 resizable: false,
                 contentTag: "section",
+                savePosition: false,
             },
             form: {
                 handler: this.#onSubmit,
