@@ -1,7 +1,6 @@
 import { MODULE_ID } from "../main.js";
 
 export class HandlebarsApplication extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
-    
     constructor() {
         super();
         this.constructor.registerPositionSetting();
@@ -15,7 +14,7 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
             scope: "client",
             config: false,
             type: Object,
-            default: {}
+            default: {},
         });
     }
 
@@ -24,9 +23,18 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
     }
 
     savePosition(position) {
-        game.settings.set(MODULE_ID, this.APP_ID + "-position", position);
+        const positionToSave = { left: position.left, top: position.top, width: position.width, height: position.height };
+        if (positionToSave.width === "auto") delete positionToSave.width;
+        if (positionToSave.height === "auto") delete positionToSave.height;
+        game.settings.set(MODULE_ID, this.APP_ID + "-position", positionToSave);
     }
-    
+
+    setPosition(...args) {
+        const r = super.setPosition(...args);
+        if (this.constructor.POSITION_SETTING_REGISTERED) this.savePosition(this.position);
+        return r;
+    }
+
     static get APP_ID() {
         return this.name
             .split(/(?=[A-Z])/)
@@ -38,10 +46,21 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
         return this.constructor.APP_ID;
     }
 
-    static get DEFAULT_OPTIONS() {  
+    static get PARTS() {
+        return {
+            content: {
+                template: `modules/${MODULE_ID}/templates/${this.APP_ID}.hbs`,
+                classes: [],
+                scrollable: [],
+            },
+        };
+    }
+
+    static get DEFAULT_OPTIONS() {
         return {
             tag: "div",
             window: {
+                title: `${MODULE_ID}.${this.APP_ID}.title`,
                 frame: true,
                 positioned: true,
                 icon: "",
@@ -65,10 +84,23 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
         };
     }
 
-    
+    async _prepareContext(options) {
+        if(this.getData) return this.getData();
+        const data = {};
+        return { data };
+    }
+
+    activateListeners() { }
+
+    _onRender(context, options) {
+        super._onRender(context, options);
+        const html = this.element;
+        if(this.activateListeners) this.activateListeners(html);
+    }
+
     async render(options1 = {}, options2 = {}) {
         const activeOptions = typeof options1 === "boolean" ? options2 : options1;
-        if(!activeOptions.position && this.constructor.POSITION_SETTING_REGISTERED) activeOptions.position = game.settings.get(MODULE_ID, this.APP_ID + "-position");
+        if (!activeOptions.position && this.constructor.POSITION_SETTING_REGISTERED) activeOptions.position = game.settings.get(MODULE_ID, this.APP_ID + "-position");
         return super.render(options1, options2);
     }
 }
@@ -76,13 +108,13 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
 export function confirm(title, content, options = {}) {
     title = l(title);
     content = l(content);
-    return foundry.applications.api.DialogV2.confirm({window: {title}, content});
+    return foundry.applications.api.DialogV2.confirm({ window: { title }, content });
 }
 
 export function prompt(title, content, options = {}) {
     title = l(title);
     content = l(content);
-    return foundry.applications.api.DialogV2.prompt({window: {title}, content, ...options});
+    return foundry.applications.api.DialogV2.prompt({ window: { title }, content, ...options });
 }
 
 export function deepClone(obj) {
@@ -218,9 +250,9 @@ export function easeInElastic(x) {
         a = 1;
         s = p / 4;
     } else {
-        s = p / (2 * Math.PI) * Math.asin(1 / a);
+        s = (p / (2 * Math.PI)) * Math.asin(1 / a);
     }
-    return -(a * Math.pow(2, 10 * (x -= 1)) * Math.sin((x * 1 - s) * (2 * Math.PI) / p));
+    return -(a * Math.pow(2, 10 * (x -= 1)) * Math.sin(((x * 1 - s) * (2 * Math.PI)) / p));
 }
 
 export function easeOutElastic(x) {
@@ -234,9 +266,9 @@ export function easeOutElastic(x) {
         a = 1;
         s = p / 4;
     } else {
-        s = p / (2 * Math.PI) * Math.asin(1 / a);
+        s = (p / (2 * Math.PI)) * Math.asin(1 / a);
     }
-    return a * Math.pow(2, -10 * x) * Math.sin((x * 1 - s) * (2 * Math.PI) / p) + 1;
+    return a * Math.pow(2, -10 * x) * Math.sin(((x * 1 - s) * (2 * Math.PI)) / p) + 1;
 }
 
 export function easeInOutElastic(x) {
@@ -250,10 +282,10 @@ export function easeInOutElastic(x) {
         a = 1;
         s = p / 4;
     } else {
-        s = p / (2 * Math.PI) * Math.asin(1 / a);
+        s = (p / (2 * Math.PI)) * Math.asin(1 / a);
     }
-    if (x < 1) return -0.5 * (a * Math.pow(2, 10 * (x -= 1)) * Math.sin((x * 1 - s) * (2 * Math.PI) / p));
-    return a * Math.pow(2, -10 * (x -= 1)) * Math.sin((x * 1 - s) * (2 * Math.PI) / p) * 0.5 + 1;
+    if (x < 1) return -0.5 * (a * Math.pow(2, 10 * (x -= 1)) * Math.sin(((x * 1 - s) * (2 * Math.PI)) / p));
+    return a * Math.pow(2, -10 * (x -= 1)) * Math.sin(((x * 1 - s) * (2 * Math.PI)) / p) * 0.5 + 1;
 }
 
 export function easeInBack(x) {
@@ -268,6 +300,6 @@ export function easeOutBack(x) {
 
 export function easeInOutBack(x) {
     let s = 1.70158;
-    if ((x /= 1 / 2) < 1) return 1 / 2 * (x * x * (((s *= (1.525)) + 1) * x - s));
-    return 1 / 2 * ((x -= 2) * x * (((s *= (1.525)) + 1) * x + s) + 2);
+    if ((x /= 1 / 2) < 1) return (1 / 2) * (x * x * (((s *= 1.525) + 1) * x - s));
+    return (1 / 2) * ((x -= 2) * x * (((s *= 1.525) + 1) * x + s) + 2);
 }
