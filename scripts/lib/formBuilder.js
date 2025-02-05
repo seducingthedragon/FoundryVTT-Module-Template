@@ -353,7 +353,7 @@ export class FormBuilder {
 
     uuid({name, label, hint, value, type, multiple}) {
         const dataField = {
-            field: new foundry.data.fields.DocumentUUIDField({},{type}),
+            field: new foundry.data.fields.DocumentUUIDField({type},{}),
             name,
             label,
             hint,
