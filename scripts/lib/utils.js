@@ -105,6 +105,11 @@ export class HandlebarsApplication extends foundry.applications.api.HandlebarsAp
     }
 }
 
+export function dynamicImport(url) {
+    const dynamicImport = new Function('url', 'return import(url)')
+    return dynamicImport(url);
+}
+
 export function confirm(title, content, options = {}) {
     title = l(title);
     content = l(content);
