@@ -45,6 +45,66 @@
       "lang": "it",
       "name": "Italiano",
       "path": "languages/it.json"
+    },
+    {
+      "lang": "cn",
+      "name": "中文（简体）",
+      "path": "languages/cn.json"
+    },
+    {
+      "lang": "ca",
+      "name": "Català",
+      "path": "languages/ca.json"
+    },
+    {
+      "lang": "sv",
+      "name": "Svenska",
+      "path": "languages/sv.json"
+    },
+    {
+      "lang": "pl",
+      "name": "polski",
+      "path": "languages/pl.json"
+    },
+    {
+      "lang": "zh-tw",
+      "name": "Taiwanese Chinese",
+      "path": "languages/zh-tw.json"
+    },
+    {
+      "lang": "en-AU",
+      "name": "English (Australian)",
+      "path": "languages/en-au.json"
+    },
+    {
+      "lang": "ru",
+      "name": "русский (Russian)",
+      "path": "languages/ru.json"
+    },
+    {
+      "lang": "pt",
+      "name": "Portuguese",
+      "path": "languages/pt.json"
+    },
+    {
+      "lang": "gl",
+      "name": "Galego",
+      "path": "languages/gl.json"
+    },
+    {
+      "lang": "eu",
+      "name": "Euskera",
+      "path": "languages/eu.json"
+    },
+    {
+      "lang": "zh-Hans",
+      "name": "Chinese (Simplified)",
+      "path": "languages/zh-hans.json"
+    },
+    {
+      "lang": "uk",
+      "name": "Українська (Ukrainian)",
+      "path": "languages/uk.json"
     }
   ],
   "scripts": [],
